@@ -1,0 +1,17 @@
+{
+  "name": "xeno-crm",
+  "version": "1.0.0",
+  "description": "AI-Native Mini CRM for Reaching Shoppers",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:channel\" \"npm run dev:client\"",
+    "dev:server": "cd server && npm run dev",
+    "dev:channel": "cd channel-service && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "install:all": "npm install && cd server && npm install && cd ../channel-service && npm install && cd ../client && npm install",
+    "seed": "cd server && npm run seed"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
