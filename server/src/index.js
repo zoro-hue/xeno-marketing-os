@@ -69,10 +69,22 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
+const { seed } = require('./seed');
+const { query } = require('./db');
+
 // Start server
 async function start() {
   try {
     await initializeDatabase();
+    
+    // Check if customers table is empty, if so, run auto-seed
+    const result = query('SELECT COUNT(*) as count FROM customers');
+    const count = result.rows && result.rows[0] ? result.rows[0].count : 0;
+    if (count === 0) {
+      console.log('Database is empty. Auto-seeding default CRM data...');
+      seed(false, false); // don't exit, don't drop tables (they were just initialized)
+    }
+
     server.listen(PORT, () => {
       console.log(`CRM Server running on port ${PORT}`);
       console.log(`Health check: http://localhost:${PORT}/health`);
@@ -84,3 +96,4 @@ async function start() {
 }
 
 start();
+

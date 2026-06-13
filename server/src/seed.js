@@ -72,14 +72,16 @@ function generateUniqueCustomers(count) {
   return list;
 }
 
-function seed() {
+function seed(shouldExit = true, dropTables = true) {
   try {
-    console.log('Dropping existing tables...');
-    sqliteDb.exec('DROP TABLE IF EXISTS communications');
-    sqliteDb.exec('DROP TABLE IF EXISTS campaigns');
-    sqliteDb.exec('DROP TABLE IF EXISTS segments');
-    sqliteDb.exec('DROP TABLE IF EXISTS orders');
-    sqliteDb.exec('DROP TABLE IF EXISTS customers');
+    if (dropTables) {
+      console.log('Dropping existing tables...');
+      sqliteDb.exec('DROP TABLE IF EXISTS communications');
+      sqliteDb.exec('DROP TABLE IF EXISTS campaigns');
+      sqliteDb.exec('DROP TABLE IF EXISTS segments');
+      sqliteDb.exec('DROP TABLE IF EXISTS orders');
+      sqliteDb.exec('DROP TABLE IF EXISTS customers');
+    }
 
     console.log('Initializing database schema...');
     initializeDatabase();
@@ -333,10 +335,16 @@ function seed() {
     console.log(`  - ${segmentDefs.length} segments`);
     console.log(`  - ${campaignData.length} campaigns with communication/conversion records`);
 
-    process.exit(0);
+    if (shouldExit) {
+      process.exit(0);
+    }
   } catch (error) {
     console.error('Seed failed:', error);
-    process.exit(1);
+    if (shouldExit) {
+      process.exit(1);
+    } else {
+      throw error;
+    }
   }
 }
 
@@ -393,4 +401,8 @@ function getSegmentCustomers(rulesJson) {
   return sqliteDb.prepare(`SELECT id, name, email, phone, city FROM customers ${where}`).all(...params);
 }
 
-seed();
+module.exports = { seed };
+
+if (require.main === module) {
+  seed(true);
+}
